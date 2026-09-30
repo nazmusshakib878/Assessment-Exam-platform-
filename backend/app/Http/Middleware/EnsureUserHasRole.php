@@ -16,6 +16,8 @@ class EnsureUserHasRole
         if (! $user || ! in_array($user->role, $roles, true)) {
             return response()->json([
                 'message' => 'You do not have permission to access this resource.',
+                'errors' => null,
+                'code' => 'FORBIDDEN',
             ], Response::HTTP_FORBIDDEN);
         }
 
