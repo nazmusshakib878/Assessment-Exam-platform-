@@ -126,6 +126,29 @@ class AdminApiTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_an_admin_cannot_delete_a_question_used_by_an_attempt(): void
+    {
+        $question = $this->createQuestion();
+        $attempt = Attempt::create([
+            'user_id' => $this->student->id,
+            'status' => 'in_progress',
+            'total_score' => 0,
+            'level_name' => 'Pending',
+        ]);
+        $attempt->answers()->create([
+            'question_id' => $question->id,
+            'position' => 1,
+            'option_order' => [0, 1, 2, 3],
+        ]);
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->deleteJson("/api/admin/questions/{$question->id}")
+            ->assertUnprocessable()
+            ->assertJsonPath('errors.question.0', 'Questions used in an assessment cannot be deleted.');
+
+        $this->assertDatabaseHas('questions', ['id' => $question->id]);
+    }
+
     /** @return array{text: string, level: int, options: array<int, string>, correct_option: int} */
     private function questionPayload(): array
     {

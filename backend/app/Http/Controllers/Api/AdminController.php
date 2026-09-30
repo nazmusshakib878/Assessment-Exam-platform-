@@ -10,6 +10,7 @@ use App\Http\Resources\AdminQuestionResource;
 use App\Models\Attempt;
 use App\Models\Question;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
 {
@@ -51,6 +52,12 @@ class AdminController extends Controller
 
     public function destroyQuestion(Question $question): JsonResponse
     {
+        if ($question->attemptAnswers()->exists()) {
+            throw ValidationException::withMessages([
+                'question' => ['Questions used in an assessment cannot be deleted.'],
+            ]);
+        }
+
         $question->delete();
 
         return response()->json(['message' => 'Question deleted successfully.']);
