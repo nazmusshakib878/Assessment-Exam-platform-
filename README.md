@@ -1,78 +1,75 @@
 # Level Assessment Exam Platform
 
-A full-stack role-based assessment platform. Students can register, take a balanced ten-question level assessment, and view completed results. Administrators can manage the question bank and review submitted student outcomes.
+[![CI](https://github.com/nazmusshakib878/Assessment-Exam-platform-/actions/workflows/ci.yml/badge.svg)](https://github.com/nazmusshakib878/Assessment-Exam-platform-/actions/workflows/ci.yml)
 
-## Tech stack
+A full-stack, role-based level assessment platform. Students register, take a balanced ten-question assessment, resume saved progress, and receive a score and level. Administrators manage the question bank and view submitted results.
 
-- Backend: Laravel 12, PHP 8.2+, Laravel Sanctum, SQLite, PHPUnit
+## Stack
+
+- Backend: Laravel 12, PHP 8.2+, Sanctum, SQLite/MySQL, PHPUnit
 - Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS 4
-- Authentication: Laravel Sanctum personal access tokens with admin/student role authorization
 
-## Project structure
+## Setup
 
-- `backend/` - Laravel API, database migrations, seeders, and feature tests
-- `frontend/` - Next.js role-aware web interface
+### Backend
 
-## Backend setup
+macOS/Linux:
 
 ```bash
 cd backend
 composer install
-copy .env.example .env
+cp .env.example .env
 php artisan key:generate
+touch database/database.sqlite
+php artisan migrate:fresh --seed
+php artisan serve
 ```
 
-The default backend environment uses SQLite. If `database/database.sqlite` does not exist, create it before migrating:
+Windows PowerShell:
 
 ```powershell
+cd backend
+composer install
+Copy-Item .env.example .env
+php artisan key:generate
 New-Item -ItemType File -Force database/database.sqlite
+php artisan migrate:fresh --seed
+php artisan serve
 ```
 
-## Frontend setup
+The API runs at `http://localhost:8000` by default.
+
+### Frontend
+
+macOS/Linux:
 
 ```bash
 cd frontend
 npm install
-copy .env.example .env.local
+cp .env.example .env.local
+npm run dev
 ```
 
-Set the frontend API origin in `frontend/.env.local`:
+Windows PowerShell:
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
+```powershell
+cd frontend
+npm install
+Copy-Item .env.example .env.local
+npm run dev
 ```
+
+Open `http://localhost:3000`.
 
 ## Environment variables
 
-Backend settings are documented in `backend/.env.example`. The default local configuration uses:
-
-```env
-APP_URL=http://localhost
-DB_CONNECTION=sqlite
-```
-
-Frontend settings are documented in `frontend/.env.example`:
+Frontend:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-## Database migration and seeding
-
-Run migrations:
-
-```bash
-cd backend
-php artisan migrate
-```
-
-Reset the development database and load the complete baseline data:
-
-```bash
-php artisan migrate:fresh --seed
-```
-
-The seeders create exactly one admin, two students, and 50 questions: 10 questions at every level from 1 through 5.
+For separate frontend/backend deployments set `FRONTEND_URL` to the frontend origin and configure `SANCTUM_STATEFUL_DOMAINS` only when using Sanctum cookie authentication. This project uses bearer tokens; Laravel remains the authorization authority. The frontend `auth_present` and `auth_role` cookies are non-sensitive routing hints only.
 
 ## Test credentials
 
@@ -82,58 +79,55 @@ The seeders create exactly one admin, two students, and 50 questions: 10 questio
 | Student | `student1@example.com` | `password` |
 | Student | `student2@example.com` | `password` |
 
-New registrations always receive the `student` role.
+## API endpoints
 
-## Running the applications
+| Method | Path | Role | Purpose |
+| --- | --- | --- | --- |
+| POST | `/api/register` | Public | Register a student |
+| POST | `/api/login` | Public | Receive a Sanctum token |
+| POST | `/api/logout` | Authenticated | Revoke current token |
+| GET | `/api/user` | Authenticated | Current user |
+| GET/POST | `/api/attempts` | Student | Results / start assessment |
+| GET | `/api/attempts/{id}` | Owner student | Retrieve saved assessment |
+| PATCH | `/api/attempts/{id}/answers` | Owner student | Save progress |
+| POST | `/api/attempts/{id}/submit` | Owner student | Submit assessment |
+| CRUD | `/api/admin/questions` | Admin | Manage questions |
+| GET | `/api/admin/results` | Admin | Submitted results |
 
-Start the Laravel API:
+## Data model
 
-```bash
-cd backend
-php artisan serve
+```mermaid
+erDiagram
+  USER ||--o{ ATTEMPT : has
+  ATTEMPT ||--o{ ATTEMPT_ANSWER : contains
+  QUESTION ||--o{ ATTEMPT_ANSWER : used_by
 ```
 
-The API will normally be available at `http://localhost:8000`.
-
-In a second terminal, start the Next.js application:
+## Tests and checks
 
 ```bash
-cd frontend
-npm run dev
+cd backend && php artisan test
+cd frontend && npm run lint && npm run build
 ```
 
-Open `http://localhost:3000` and sign in using a seeded account or register a new student account.
+The Postman collection is at [docs/postman_collection.json](docs/postman_collection.json).
 
-## API and UI overview
-
-- Public authentication: register and login
-- Authenticated session: current user and logout
-- Student flow: start an attempt, save selected answers while progressing, submit, and view results
-- Admin flow: question CRUD with validation, filters, and pagination; submitted-results listing
-- Role protection: Sanctum plus backend `role` middleware; frontend guards route the user to the appropriate workspace
-- Security: question responses before submission include only text, level, and options; answer keys and points stay server-side
-
-## Running tests and checks
-
-Backend tests:
+## Optional Docker development
 
 ```bash
-cd backend
-php artisan test
+docker compose up --build
 ```
 
-Frontend checks:
+This starts MySQL, Laravel, and Next.js. For local non-Docker work, SQLite is the simplest option.
 
-```bash
-cd frontend
-npm run lint
-npm run build
-```
+## Live demo / deployment
 
-## Decisions and Improvements
+Host the API on Render, Railway, or Fly.io and use a managed MySQL/Postgres database. Set `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`, database credentials, `FRONTEND_URL`, and CORS origin settings on the API host. Set Vercel `NEXT_PUBLIC_API_URL` to the public API URL and redeploy the frontend. SQLite on ephemeral hosts resets on redeploy, so use a managed database or deliberately seed on startup.
 
-- Sanctum bearer tokens are held in browser session storage and verified against `/api/user` when the app loads.
-- Backend role middleware remains the authorization source of truth; frontend guards improve navigation and user experience.
-- Attempt questions and selected answers are persisted, so students can safely refresh and resume an in-progress exam.
-- Scores, correct options, and awarded points are calculated only by the Laravel service after submission.
-- A future improvement is moving token handling to secure HTTP-only cookies with a dedicated web-session strategy.
+## Decisions and improvements
+
+- Each attempt stores stable question and option ordering, while the server maps selected option identifiers back for grading.
+- Scoring, score bands, transactions, and row locking live in one backend service.
+- Auth endpoints are throttled and API failures use one JSON envelope.
+- Routing-hint cookies avoid protected-page flashes; Sanctum role checks remain authoritative.
+- A future production improvement is secure HTTP-only cookie authentication instead of browser-held bearer tokens.
