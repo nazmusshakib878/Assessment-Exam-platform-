@@ -4,6 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { getAuthenticatedUser, logout as logoutRequest, type AuthUser } from "@/lib/api";
 
 const SESSION_KEY = "level-assessment-auth";
+let validatedSession: StoredSession | null | undefined;
+let sessionValidationPromise: Promise<StoredSession | null> | null = null;
 
 function setRoutingCookies(role: AuthUser["role"]) { document.cookie = `auth_present=1; Path=/; SameSite=Lax`; document.cookie = `auth_role=${role}; Path=/; SameSite=Lax`; }
 function clearRoutingCookies() { document.cookie = "auth_present=; Path=/; SameSite=Lax; Max-Age=0"; document.cookie = "auth_role=; Path=/; SameSite=Lax; Max-Age=0"; }
@@ -37,12 +39,32 @@ function readSession(): StoredSession | null {
   }
 }
 
+function validateStoredSession(): Promise<StoredSession | null> {
+  const storedSession = readSession();
+  if (!storedSession) return Promise.resolve(null);
+  if (validatedSession?.token === storedSession.token) return Promise.resolve(validatedSession);
+  if (sessionValidationPromise) return sessionValidationPromise;
+
+  sessionValidationPromise = getAuthenticatedUser(storedSession.token)
+    .then(({ user: verifiedUser }) => {
+      validatedSession = { token: storedSession.token, user: verifiedUser };
+      return validatedSession;
+    })
+    .catch(() => null)
+    .finally(() => {
+      sessionValidationPromise = null;
+    });
+
+  return sessionValidationPromise;
+}
+
 export function AuthProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
   const clearSession = useCallback(() => {
+    validatedSession = null;
     window.sessionStorage.removeItem(SESSION_KEY);
     clearRoutingCookies();
     setToken(null);
@@ -53,23 +75,17 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
   useEffect(() => {
     async function initialize() {
       await Promise.resolve();
-      const storedSession = readSession();
+      const session = await validateStoredSession();
 
-      if (!storedSession) {
+      if (!session) {
         clearSession();
         return;
       }
 
-      try {
-        const { user: verifiedUser } = await getAuthenticatedUser(storedSession.token);
-        const session = { token: storedSession.token, user: verifiedUser };
-        window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
-        setToken(storedSession.token);
-        setUser(verifiedUser);
-        setStatus("authenticated");
-      } catch {
-        clearSession();
-      }
+      window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      setToken(session.token);
+      setUser(session.user);
+      setStatus("authenticated");
     }
 
     void initialize();

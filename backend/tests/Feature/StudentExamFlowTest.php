@@ -51,6 +51,10 @@ class StudentExamFlowTest extends TestCase
         $this->assertSame('Elementary', $service->levelForScore(6));
         $this->assertSame('Elementary', $service->levelForScore(11));
         $this->assertSame('Intermediate', $service->levelForScore(12));
+        $this->assertSame('Intermediate', $service->levelForScore(18));
+        $this->assertSame('Advanced', $service->levelForScore(19));
+        $this->assertSame('Advanced', $service->levelForScore(24));
+        $this->assertSame('Expert', $service->levelForScore(25));
         $this->assertSame('Expert', $service->levelForScore(30));
     }
 
