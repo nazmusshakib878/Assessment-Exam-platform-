@@ -16,7 +16,8 @@ RUN composer install \
     --no-progress \
     --prefer-dist \
     --optimize-autoloader \
-    --classmap-authoritative
+    --classmap-authoritative \
+    --no-scripts
 
 COPY . .
 

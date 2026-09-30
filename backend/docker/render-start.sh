@@ -10,6 +10,7 @@ if [ -z "${APP_KEY:-}" ]; then
 fi
 
 php artisan optimize:clear
+php artisan package:discover --ansi
 php artisan migrate --force
 
 # Seeding production data is opt-in so deployments never overwrite live data.
