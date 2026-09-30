@@ -75,4 +75,3 @@ class QuestionSeeder extends Seeder
         ];
     }
 }
-

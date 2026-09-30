@@ -71,4 +71,3 @@ class AssessmentModelsTest extends TestCase
         $this->assertDatabaseMissing('attempt_answers', ['id' => $answer->id]);
     }
 }
-

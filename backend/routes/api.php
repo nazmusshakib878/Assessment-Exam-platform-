@@ -29,4 +29,3 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
     Route::delete('/questions/{question}', [AdminController::class, 'destroyQuestion']);
     Route::get('/results', [AdminController::class, 'results']);
 });
-
