@@ -13,6 +13,8 @@ class AttemptAnswer extends Model
     protected $fillable = [
         'attempt_id',
         'question_id',
+        'position',
+        'option_order',
         'selected_option',
         'is_correct',
         'points',
@@ -22,6 +24,8 @@ class AttemptAnswer extends Model
     {
         return [
             'selected_option' => 'integer',
+            'position' => 'integer',
+            'option_order' => 'array',
             'is_correct' => 'boolean',
             'points' => 'integer',
         ];

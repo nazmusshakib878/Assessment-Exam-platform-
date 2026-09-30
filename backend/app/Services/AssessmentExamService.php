@@ -13,7 +13,7 @@ class AssessmentExamService
 {
     public function startAttempt(User $user): Attempt
     {
-        $questions = $this->selectQuestions();
+        $questions = $this->selectQuestions()->shuffle()->values();
 
         return DB::transaction(function () use ($user, $questions) {
             $attempt = $user->attempts()->create([
@@ -23,8 +23,10 @@ class AssessmentExamService
             ]);
 
             $attempt->answers()->createMany(
-                $questions->map(fn (Question $question) => [
+                $questions->map(fn (Question $question, int $position) => [
                     'question_id' => $question->id,
+                    'position' => $position + 1,
+                    'option_order' => collect(range(0, 3))->shuffle()->values()->all(),
                 ])->all()
             );
 
@@ -113,7 +115,7 @@ class AssessmentExamService
     {
         return Attempt::query()
             ->lockForUpdate()
-            ->with('answers.question')
+            ->with(['answers' => fn ($query) => $query->orderBy('position'), 'answers.question'])
             ->findOrFail($attempt->id);
     }
 

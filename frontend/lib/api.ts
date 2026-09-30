@@ -1,7 +1,7 @@
 export type UserRole = "admin" | "student";
 
 export type AuthUser = { id: number; name: string; email: string; role: UserRole };
-export type ExamQuestion = { id: number; text: string; level: number; options: string[]; selected_option?: number | null };
+export type ExamQuestion = { id: number; text: string; level: number; options: string[]; option_ids?: number[]; selected_option?: number | null };
 export type Attempt = { id: number; status: string; questions?: ExamQuestion[]; created_at?: string };
 export type AttemptResult = { id: number; status: string; total_score: number; level_name: string; submitted_at: string | null; created_at: string };
 export type AdminQuestion = { id: number; text: string; level: number; options: string[]; correct_option: number; created_at: string; updated_at: string };
