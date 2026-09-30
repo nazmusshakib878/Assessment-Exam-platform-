@@ -5,11 +5,12 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const present = request.cookies.get("auth_present")?.value === "1";
   const role = request.cookies.get("auth_role")?.value;
-  const home = role === "admin" ? "/admin" : "/student";
-  if ((pathname.startsWith("/admin") || pathname.startsWith("/student")) && !present) return NextResponse.redirect(new URL("/login", request.url));
-  if (pathname.startsWith("/admin") && role === "student") return NextResponse.redirect(new URL("/student", request.url));
-  if (pathname.startsWith("/student") && role === "admin") return NextResponse.redirect(new URL("/admin", request.url));
-  if ((pathname === "/login" || pathname === "/register") && present && (role === "admin" || role === "student")) return NextResponse.redirect(new URL(home, request.url));
+  const redirect = (target: string) => pathname === target ? NextResponse.next() : NextResponse.redirect(new URL(target, request.url));
+
+  if ((pathname.startsWith("/admin") || pathname.startsWith("/student")) && !present) return redirect("/login");
+  if (pathname.startsWith("/admin") && role === "student") return redirect("/student");
+  if (pathname.startsWith("/student") && role === "admin") return redirect("/admin");
+
   return NextResponse.next();
 }
 

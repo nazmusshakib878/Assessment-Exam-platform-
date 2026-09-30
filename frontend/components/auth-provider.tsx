@@ -4,9 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { getAuthenticatedUser, logout as logoutRequest, type AuthUser } from "@/lib/api";
 
 const SESSION_KEY = "level-assessment-auth";
-const COOKIE_MAX_AGE = 60 * 60 * 8;
-function setRoutingCookies(role: AuthUser["role"]) { document.cookie = `auth_present=1; Path=/; SameSite=Lax; Max-Age=${COOKIE_MAX_AGE}`; document.cookie = `auth_role=${role}; Path=/; SameSite=Lax; Max-Age=${COOKIE_MAX_AGE}`; }
-function clearRoutingCookies() { document.cookie = "auth_present=; Path=/; Max-Age=0"; document.cookie = "auth_role=; Path=/; Max-Age=0"; }
+
+function setRoutingCookies(role: AuthUser["role"]) { document.cookie = `auth_present=1; Path=/; SameSite=Lax`; document.cookie = `auth_role=${role}; Path=/; SameSite=Lax`; }
+function clearRoutingCookies() { document.cookie = "auth_present=; Path=/; SameSite=Lax; Max-Age=0"; document.cookie = "auth_role=; Path=/; SameSite=Lax; Max-Age=0"; }
 
 type StoredSession = { token: string; user: AuthUser };
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
       const storedSession = readSession();
 
       if (!storedSession) {
-        setStatus("unauthenticated");
+        clearSession();
         return;
       }
 

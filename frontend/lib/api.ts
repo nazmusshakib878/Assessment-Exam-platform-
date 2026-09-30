@@ -27,9 +27,14 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}, tok
   const response = await fetch(`${getApiUrl()}${path}`, { ...options, headers });
   const payload = (await response.json().catch(() => ({}))) as ApiErrorBody & T;
   if (!response.ok) {
-    if (response.status === 401 && typeof window !== "undefined") { window.sessionStorage.removeItem("level-assessment-auth"); document.cookie = "auth_present=; Path=/; Max-Age=0"; document.cookie = "auth_role=; Path=/; Max-Age=0"; window.location.assign(new URL("/login", window.location.origin)); }
+    if (response.status === 401 && typeof window !== "undefined") {
+      window.sessionStorage.removeItem("level-assessment-auth");
+      document.cookie = "auth_present=; Path=/; SameSite=Lax; Max-Age=0";
+      document.cookie = "auth_role=; Path=/; SameSite=Lax; Max-Age=0";
+      if (window.location.pathname !== "/login") window.location.assign(new URL("/login", window.location.origin));
+    }
     const validationMessage = payload.errors ? Object.values(payload.errors).flat().join(" ") : undefined;
-    throw new ApiError(validationMessage || payload.message || "Something went wrong.", response.status, payload.errors);
+    throw new ApiError(response.status >= 500 ? "Server error. Please try again later." : validationMessage || payload.message || "Something went wrong.", response.status, payload.errors);
   }
   return payload as T;
 }
