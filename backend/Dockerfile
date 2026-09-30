@@ -21,6 +21,8 @@ RUN composer install \
 
 COPY . .
 
+RUN composer dump-autoload --optimize --no-scripts
+
 RUN chmod +x docker/render-start.sh docker/render-deploy.sh \
     && chown -R www-data:www-data storage bootstrap/cache
 
