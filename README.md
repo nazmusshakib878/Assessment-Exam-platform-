@@ -69,7 +69,7 @@ Frontend:
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-For separate frontend/backend deployments set `FRONTEND_URL` to the frontend origin and configure `SANCTUM_STATEFUL_DOMAINS` only when using Sanctum cookie authentication. This project uses bearer tokens; Laravel remains the authorization authority. The frontend `auth_present` and `auth_role` cookies are non-sensitive routing hints only.
+For separate frontend/backend deployments set `FRONTEND_URL` to the frontend origin and configure `SANCTUM_STATEFUL_DOMAINS` only when using Sanctum cookie authentication. This project uses bearer tokens; Laravel remains the authorization authority. The frontend `auth_present` and `auth_role` cookies are non-sensitive routing hints only. Next.js 16 uses `proxy.ts` (formerly `middleware.ts`) for URL-level route protection.
 
 ## Test credentials
 
