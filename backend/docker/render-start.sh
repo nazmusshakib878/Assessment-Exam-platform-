@@ -9,6 +9,9 @@ if [ -z "${APP_KEY:-}" ]; then
     exit 1
 fi
 
+mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache
+chmod -R ug+rwX storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache
+
 php artisan optimize:clear
 php artisan package:discover --ansi
 php artisan migrate --force
