@@ -37,7 +37,7 @@ php artisan migrate:fresh --seed
 php artisan serve
 ```
 
-The API runs at `http://localhost:8000` by default.
+The API runs at `http://localhost:8000` by default. After pulling new commits, run `php artisan migrate` (or `php artisan migrate:fresh --seed` on development) if you see `no such column` errors.
 
 ### Frontend
 
@@ -131,3 +131,8 @@ Host the API on Render, Railway, or Fly.io and use a managed MySQL/Postgres data
 - Auth endpoints are throttled and API failures use one JSON envelope.
 - Routing-hint cookies avoid protected-page flashes; Sanctum role checks remain authoritative.
 - A future production improvement is secure HTTP-only cookie authentication instead of browser-held bearer tokens.
+## Troubleshooting
+
+After pulling new commits, run `php artisan migrate` (or `php artisan migrate:fresh --seed` on development) if you see `no such column` errors.
+
+Docker starts the backend by running `php artisan migrate --force`. Its seeders are idempotent, so repeated `php artisan db:seed --force` runs update the baseline admin, students, and questions rather than duplicating them.

@@ -29,4 +29,13 @@ class AssessmentSeederTest extends TestCase
             $this->assertContains($question->correct_option, [0, 1, 2, 3]);
         }
     }
+
+    public function test_the_assessment_seeders_are_idempotent(): void
+    {
+        $this->seed();
+        $this->seed();
+
+        $this->assertDatabaseCount('users', 3);
+        $this->assertDatabaseCount('questions', 50);
+    }
 }

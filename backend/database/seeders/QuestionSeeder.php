@@ -10,7 +10,7 @@ class QuestionSeeder extends Seeder
     public function run(): void
     {
         foreach ($this->questions() as $question) {
-            Question::create($question);
+            Question::updateOrCreate(['text' => $question['text']], $question);
         }
     }
 
