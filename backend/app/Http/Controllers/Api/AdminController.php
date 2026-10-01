@@ -10,6 +10,7 @@ use App\Http\Resources\AdminQuestionResource;
 use App\Models\Attempt;
 use App\Models\Question;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
@@ -63,12 +64,22 @@ class AdminController extends Controller
         return response()->json(['message' => 'Question deleted successfully.']);
     }
 
-    public function results()
+    public function results(Request $request)
     {
+        $filters = $request->validate([
+            'level' => ['nullable', 'string', 'in:Beginner,Elementary,Intermediate,Advanced,Expert'],
+            'sort' => ['nullable', 'string', 'in:score_desc'],
+        ]);
+
         $results = Attempt::query()
             ->with('user')
             ->where('status', 'submitted')
-            ->orderByDesc('submitted_at')
+            ->when($filters['level'] ?? null, fn ($query, $level) => $query->where('level_name', $level))
+            ->when(
+                ($filters['sort'] ?? null) === 'score_desc' || isset($filters['level']),
+                fn ($query) => $query->orderByDesc('total_score')->orderByDesc('submitted_at'),
+                fn ($query) => $query->orderByDesc('submitted_at')
+            )
             ->paginate(15);
 
         return AdminAttemptResultResource::collection($results);

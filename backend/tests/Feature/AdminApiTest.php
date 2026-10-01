@@ -103,6 +103,29 @@ class AdminApiTest extends TestCase
             ->assertJsonPath('data.0.level_name', 'Intermediate');
     }
 
+    public function test_admin_results_can_be_sorted_by_score_with_newest_attempt_first_for_ties(): void
+    {
+        $lower = $this->createSubmittedAttempt(['total_score' => 12, 'submitted_at' => now()->subMinute()]);
+        $olderTop = $this->createSubmittedAttempt(['total_score' => 24, 'submitted_at' => now()->subMinutes(3)]);
+        $newerTop = $this->createSubmittedAttempt(['total_score' => 24, 'submitted_at' => now()->subMinutes(2)]);
+
+        $this->actingAs($this->admin, 'sanctum')->getJson('/api/admin/results?sort=score_desc')
+            ->assertOk()->assertJsonPath('data.0.id', $newerTop->id)->assertJsonPath('data.1.id', $olderTop->id)->assertJsonPath('data.2.id', $lower->id);
+    }
+
+    public function test_admin_results_can_be_filtered_by_level_with_pagination(): void
+    {
+        foreach (range(1, 16) as $number) {
+            $this->createSubmittedAttempt(['total_score' => $number, 'level_name' => 'Expert', 'submitted_at' => now()->subMinutes($number)]);
+        }
+        $intermediate = $this->createSubmittedAttempt(['level_name' => 'Intermediate']);
+
+        $response = $this->actingAs($this->admin, 'sanctum')->getJson('/api/admin/results?level=Expert&page=2')
+            ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('meta.current_page', 2)->assertJsonPath('meta.total', 16);
+
+        $this->assertSame(1, $response->json('data.0.score'));
+        $this->assertNotSame($intermediate->id, $response->json('data.0.id'));
+    }
     public function test_students_are_blocked_from_all_admin_routes(): void
     {
         $question = $this->createQuestion();
@@ -169,4 +192,15 @@ class AdminApiTest extends TestCase
             'level' => $level,
         ]);
     }
-}
+
+    private function createSubmittedAttempt(array $attributes = []): Attempt
+    {
+        return Attempt::create([
+            'user_id' => $this->student->id,
+            'status' => 'submitted',
+            'total_score' => 10,
+            'level_name' => 'Beginner',
+            'submitted_at' => now(),
+            ...$attributes,
+        ]);
+    }}
