@@ -102,6 +102,8 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
   const logout = useCallback(async () => {
     try {
       if (token) await logoutRequest(token);
+    } catch {
+      // Always clear the local session if remote token revocation fails.
     } finally {
       clearSession();
     }

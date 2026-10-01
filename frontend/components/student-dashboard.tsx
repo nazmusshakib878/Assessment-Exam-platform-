@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAttempts, startAttempt, type AttemptResult } from "@/lib/api";
+import { getAttempts, startAttempt, type AttemptResult, type AttemptsResponse } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
 import { useApiError } from "@/components/use-api-error";
 import { ErrorMessage } from "@/components/error-message";
@@ -9,9 +9,9 @@ import { useRouter } from "next/navigation";
 import { writeExamCache } from "@/lib/exam-cache";
 
 const RESULTS_CACHE_TTL = 30_000;
-type ResultsCacheEntry = { results: AttemptResult[]; cachedAt: number };
+type ResultsCacheEntry = { response: AttemptsResponse; cachedAt: number };
 const resultsCache = new Map<string, ResultsCacheEntry>();
-const resultsRequests = new Map<string, Promise<AttemptResult[]>>();
+const resultsRequests = new Map<string, Promise<AttemptsResponse>>();
 
 function formatDate(value: string | null) {
   return value
@@ -26,15 +26,15 @@ function hasFreshResults(token: string) {
 
 function getCachedResults(token: string, forceRefresh = false) {
   const cached = resultsCache.get(token);
-  if (!forceRefresh && cached && Date.now() - cached.cachedAt < RESULTS_CACHE_TTL) return Promise.resolve(cached.results);
+  if (!forceRefresh && cached && Date.now() - cached.cachedAt < RESULTS_CACHE_TTL) return Promise.resolve(cached.response);
 
   const inFlight = resultsRequests.get(token);
   if (inFlight) return inFlight;
 
   const request = getAttempts(token)
-    .then(({ attempts }) => {
-      resultsCache.set(token, { results: attempts, cachedAt: Date.now() });
-      return attempts;
+    .then((response) => {
+      resultsCache.set(token, { response, cachedAt: Date.now() });
+      return response;
     })
     .finally(() => {
       resultsRequests.delete(token);
@@ -63,6 +63,7 @@ export function StudentDashboard() {
   const router = useRouter();
   const handleApiError = useApiError();
   const [results, setResults] = useState<AttemptResult[]>([]);
+  const [activeAttemptId, setActiveAttemptId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +76,9 @@ export function StudentDashboard() {
     setIsLoading(!hasFreshResults(token));
     setError(null);
     try {
-      setResults(await getCachedResults(token, forceRefresh));
+      const response = await getCachedResults(token, forceRefresh);
+      setResults(response.attempts);
+      setActiveAttemptId(response.active_attempt_id);
     } catch (caught) {
       setError(await handleApiError(caught));
     } finally {
@@ -114,7 +117,7 @@ export function StudentDashboard() {
   return <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
     <div className="flex flex-col justify-between gap-6 rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-700 p-7 text-white shadow-xl shadow-indigo-200/50 sm:p-10 lg:flex-row lg:items-end">
       <div><p className="text-sm font-semibold text-indigo-200">Student dashboard</p><h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Welcome back, {user?.name?.split(" ")[0]}.</h1><p className="mt-3 max-w-xl text-indigo-100">Take a focused level assessment and see where your learning can go next.</p></div>
-      <button disabled={isStarting} onClick={handleStart} className="rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-700 shadow-lg transition hover:bg-indigo-50 disabled:opacity-60">{isStarting ? "Starting exam..." : "Start exam"}</button>
+      {activeAttemptId ? <button onClick={() => router.push(`/student/exam/${activeAttemptId}`)} className="rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-700 shadow-lg transition hover:bg-indigo-50">Resume exam</button> : <button disabled={isStarting} onClick={handleStart} className="rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-700 shadow-lg transition hover:bg-indigo-50 disabled:opacity-60">{isStarting ? "Starting exam..." : "Start exam"}</button>}
     </div>
     {error && <div className="mt-6"><ErrorMessage message={error} /></div>}
     <section aria-label="Assessment summary" className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

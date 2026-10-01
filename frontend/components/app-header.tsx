@@ -11,8 +11,11 @@ export function AppHeader({ role }: Readonly<{ role: "admin" | "student" }>) {
 
   async function handleLogout() {
     setIsLoggingOut(true);
-    await logout();
-    router.replace("/login");
+    try {
+      await logout();
+    } finally {
+      router.replace("/login");
+    }
   }
 
   return (

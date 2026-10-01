@@ -45,9 +45,11 @@ export function register(name: string, email: string, password: string, password
 export function getAuthenticatedUser(token: string): Promise<{ user: AuthUser }> { return apiRequest<{ user: AuthUser }>("/api/user", {}, token); }
 export function logout(token: string): Promise<{ message: string }> { return apiRequest<{ message: string }>("/api/logout", { method: "POST" }, token); }
 
-export function startAttempt(token: string): Promise<{ attempt: Attempt }> { return apiRequest<{ attempt: Attempt }>("/api/attempts", { method: "POST" }, token); }
+export type StartAttemptResponse = { attempt: Attempt; resumed: boolean };
+export function startAttempt(token: string): Promise<StartAttemptResponse> { return apiRequest<StartAttemptResponse>("/api/attempts", { method: "POST" }, token); }
 export function getAttempt(id: string, token: string): Promise<{ attempt: Attempt }> { return apiRequest<{ attempt: Attempt }>(`/api/attempts/${id}`, {}, token); }
-export function getAttempts(token: string): Promise<{ attempts: AttemptResult[] }> { return apiRequest<{ attempts: AttemptResult[] }>("/api/attempts", {}, token); }
+export type AttemptsResponse = { attempts: AttemptResult[]; active_attempt_id: number | null };
+export function getAttempts(token: string): Promise<AttemptsResponse> { return apiRequest<AttemptsResponse>("/api/attempts", {}, token); }
 export function saveAttemptAnswers(id: string, answers: Array<{ question_id: number; selected_option: number | null }>, token: string): Promise<{ attempt: Attempt }> { return apiRequest<{ attempt: Attempt }>(`/api/attempts/${id}/answers`, { method: "PATCH", body: JSON.stringify({ answers }) }, token); }
 export function submitAttempt(id: string, answers: Array<{ question_id: number; selected_option: number | null }>, token: string): Promise<{ attempt: AttemptResult }> { return apiRequest<{ attempt: AttemptResult }>(`/api/attempts/${id}/submit`, { method: "POST", body: JSON.stringify({ answers }) }, token); }
 
