@@ -112,15 +112,23 @@ cd frontend && npm run lint && npm run build
 
 The Postman collection is at [docs/postman_collection.json](docs/postman_collection.json).
 
-## Optional Docker development
 
-```bash
-docker compose up --build
-```
+## Score bands
 
-This starts MySQL, Laravel, and Next.js. For local non-Docker work, SQLite is the simplest option.
+| Score | Level |
+| --- | --- |
+| 0-5 | Beginner |
+| 6-11 | Elementary |
+| 12-18 | Intermediate |
+| 19-24 | Advanced |
+| 25-30 | Expert |
 
-## Live demo / deployment
+## Live demo
+
+- Frontend: `<frontend URL>`
+- API: `<API URL>`
+
+## Deployment
 
 Host the API on Render, Railway, or Fly.io and use a managed MySQL/Postgres database. Set `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`, database credentials, `FRONTEND_URL`, and CORS origin settings on the API host. Set Vercel `NEXT_PUBLIC_API_URL` to the public API URL and redeploy the frontend. SQLite on ephemeral hosts resets on redeploy, so use a managed database or deliberately seed on startup.
 
@@ -135,4 +143,4 @@ Host the API on Render, Railway, or Fly.io and use a managed MySQL/Postgres data
 
 After pulling new commits, run `php artisan migrate` (or `php artisan migrate:fresh --seed` on development) if you see `no such column` errors.
 
-Docker starts the backend by running `php artisan migrate --force`. Its seeders are idempotent, so repeated `php artisan db:seed --force` runs update the baseline admin, students, and questions rather than duplicating them.
+

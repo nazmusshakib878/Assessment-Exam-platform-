@@ -48,6 +48,7 @@ class AssessmentExamService
 
         return ['attempt' => $this->startAttempt($user), 'resumed' => false];
     }
+
     /** @param array<int, array{question_id: int, selected_option: int|null}> $answers */
     public function saveAnswers(Attempt $attempt, array $answers): Attempt
     {

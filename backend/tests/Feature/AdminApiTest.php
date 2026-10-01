@@ -13,6 +13,7 @@ class AdminApiTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $student;
 
     protected function setUp(): void

@@ -1,5 +1,36 @@
 {
-  "info": {"name":"Level Assessment Exam Platform","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},
-  "variable":[{"key":"baseUrl","value":"http://localhost:8000"},{"key":"token","value":""}],
-  "item":[{"name":"Auth","item":[{"name":"Register","request":{"method":"POST","url":"{{baseUrl}}/api/register","body":{"mode":"raw","raw":"{\"name\":\"Student\",\"email\":\"student@example.com\",\"password\":\"password123\",\"password_confirmation\":\"password123\"}"}}]},{"name":"Student","item":[{"name":"Start attempt","request":{"method":"POST","url":"{{baseUrl}}/api/attempts","header":[{"key":"Authorization","value":"Bearer {{token}}"}]}}]},{"name":"Admin","item":[{"name":"Questions","request":{"method":"GET","url":"{{baseUrl}}/api/admin/questions","header":[{"key":"Authorization","value":"Bearer {{token}}"}]}}]}]
+  "info": {
+    "name": "Level Assessment API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "token", "value": "" },
+    { "key": "attemptId", "value": "1" },
+    { "key": "questionId", "value": "1" }
+  ],
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+  "item": [
+    { "name": "Auth", "item": [
+      { "name": "Register", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Student\",\n  \"email\": \"student@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}" }, "url": "{{baseUrl}}/api/register" } },
+      { "name": "Login", "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const body = pm.response.json();", "pm.collectionVariables.set('token', body.token);"] } }], "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"student1@example.com\",\n  \"password\": \"password\"\n}" }, "url": "{{baseUrl}}/api/login" } },
+      { "name": "Logout", "request": { "method": "POST", "url": "{{baseUrl}}/api/logout" } },
+      { "name": "Current user", "request": { "method": "GET", "url": "{{baseUrl}}/api/user" } }
+    ] },
+    { "name": "Attempts", "item": [
+      { "name": "List attempts", "request": { "method": "GET", "url": "{{baseUrl}}/api/attempts" } },
+      { "name": "Start or resume attempt", "request": { "method": "POST", "url": "{{baseUrl}}/api/attempts" } },
+      { "name": "Show attempt", "request": { "method": "GET", "url": "{{baseUrl}}/api/attempts/{{attemptId}}" } },
+      { "name": "Save answers", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"answers\": [{ \"question_id\": {{questionId}}, \"selected_option\": 0 }]\n}" }, "url": "{{baseUrl}}/api/attempts/{{attemptId}}/answers" } },
+      { "name": "Submit attempt", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"answers\": []\n}" }, "url": "{{baseUrl}}/api/attempts/{{attemptId}}/submit" } }
+    ] },
+    { "name": "Admin", "item": [
+      { "name": "List questions", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/questions?level=1&page=1" } },
+      { "name": "Create question", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"text\": \"Example question?\",\n  \"level\": 1,\n  \"options\": [\"One\", \"Two\", \"Three\", \"Four\"],\n  \"correct_option\": 0\n}" }, "url": "{{baseUrl}}/api/admin/questions" } },
+      { "name": "Show question", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/questions/{{questionId}}" } },
+      { "name": "Update question", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"text\": \"Updated example question?\"\n}" }, "url": "{{baseUrl}}/api/admin/questions/{{questionId}}" } },
+      { "name": "Delete question", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/admin/questions/{{questionId}}" } },
+      { "name": "Results", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/results?page=1" } }
+    ] }
+  ]
 }

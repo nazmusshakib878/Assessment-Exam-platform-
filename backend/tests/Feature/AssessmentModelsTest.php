@@ -7,6 +7,7 @@ use App\Models\AttemptAnswer;
 use App\Models\Question;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class AssessmentModelsTest extends TestCase
@@ -39,7 +40,7 @@ class AssessmentModelsTest extends TestCase
 
         $this->assertSame(['1', '2', '3', '4'], $question->options);
         $this->assertTrue($answer->is_correct);
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $attempt->submitted_at);
+        $this->assertInstanceOf(Carbon::class, $attempt->submitted_at);
         $this->assertTrue($user->attempts->first()->is($attempt));
         $this->assertTrue($attempt->answers->first()->is($answer));
         $this->assertTrue($answer->question->is($question));

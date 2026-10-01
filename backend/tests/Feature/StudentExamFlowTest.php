@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Attempt;
 use App\Models\User;
 use App\Services\AssessmentExamService;
 use Database\Seeders\QuestionSeeder;
@@ -117,6 +116,7 @@ class StudentExamFlowTest extends TestCase
             'status' => 'submitted',
         ]);
     }
+
     public function test_a_students_selected_answers_are_saved_and_restored_without_leaking_answer_keys(): void
     {
         $attempt = app(AssessmentExamService::class)->startAttempt($this->student);

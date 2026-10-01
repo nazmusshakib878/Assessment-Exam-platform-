@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Attempt;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\Attempt */
+/** @mixin Attempt */
 class AttemptResource extends JsonResource
 {
     /** @return array<string, mixed> */
