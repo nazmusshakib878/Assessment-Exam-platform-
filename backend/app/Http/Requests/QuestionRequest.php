@@ -17,10 +17,10 @@ class QuestionRequest extends FormRequest
         $presence = $this->isMethod('post') ? 'required' : 'sometimes';
 
         return [
-            'text' => [$presence, 'string'],
+            'text' => [$presence, 'string', 'max:1000'],
             'level' => [$presence, 'integer', 'between:1,5'],
             'options' => [$presence, 'array', 'list', 'size:4'],
-            'options.*' => ['required_with:options', 'string', 'max:255'],
+            'options.*' => ['required_with:options', 'string', 'max:255', 'distinct'],
             'correct_option' => [$presence, 'integer', 'between:0,3'],
         ];
     }

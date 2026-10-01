@@ -21,9 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 $exception instanceof AuthenticationException => [401, 'UNAUTHENTICATED', 'Unauthenticated.', null],
                 $exception instanceof AuthorizationException => [403, 'FORBIDDEN', 'You do not have permission to access this resource.', null],
                 $exception instanceof ModelNotFoundException => [404, 'NOT_FOUND', 'Resource not found.', null],
-                $exception instanceof HttpExceptionInterface && $exception->getStatusCode() >= 500 => [500, 'server_error', 'Server error. Please try again later.', null],
+                $exception instanceof HttpExceptionInterface && $exception->getStatusCode() >= 500 => [500, 'SERVER_ERROR', 'Server error. Please try again later.', null],
                 $exception instanceof HttpExceptionInterface => [$exception->getStatusCode(), match ($exception->getStatusCode()) {403 => 'FORBIDDEN', 404 => 'NOT_FOUND', 405 => 'METHOD_NOT_ALLOWED', 429 => 'RATE_LIMITED', default => 'HTTP_ERROR'}, $exception->getMessage() ?: 'Request could not be completed.', null],
-                default => [500, 'server_error', 'Server error. Please try again later.', null],
+                default => [500, 'SERVER_ERROR', 'Server error. Please try again later.', null],
             };
             $payload = ['message' => $message, 'errors' => $errors, 'code' => $code]; if ($status === 500 && config('app.debug')) $payload['debug'] = $exception->getMessage(); return response()->json($payload, $status);
         });

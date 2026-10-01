@@ -25,7 +25,7 @@ class ProductionErrorHandlingTest extends TestCase
         $response->assertStatus(500)->assertExactJson([
             'message' => 'Server error. Please try again later.',
             'errors' => null,
-            'code' => 'server_error',
+            'code' => 'SERVER_ERROR',
         ]);
         $this->assertStringNotContainsString('SQLSTATE', $response->getContent());
         $this->assertStringNotContainsString('database.sqlite', $response->getContent());

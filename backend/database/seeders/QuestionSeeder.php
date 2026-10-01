@@ -32,7 +32,7 @@ class QuestionSeeder extends Seeder
             ['text' => 'What is 15% of 200?', 'level' => 2, 'options' => ['20', '25', '30', '35'], 'correct_option' => 2],
             ['text' => 'Which planet is closest to the Sun?', 'level' => 2, 'options' => ['Venus', 'Mercury', 'Earth', 'Mars'], 'correct_option' => 1],
             ['text' => 'Choose the correctly spelled word.', 'level' => 2, 'options' => ['Definately', 'Definetely', 'Definitely', 'Definatly'], 'correct_option' => 2],
-            ['text' => 'A rectangle is 8 cm long and 3 cm wide. What is its area?', 'level' => 2, 'options' => ['11 cm', '16 cm', '22 cm', '24 cm'], 'correct_option' => 3],
+            ['text' => 'A rectangle is 8 cm long and 3 cm wide. What is its area?', 'level' => 2, 'options' => ['11 cm^2', '16 cm^2', '22 cm^2', '24 cm^2'], 'correct_option' => 3],
             ['text' => 'Which gas do plants primarily absorb from the air?', 'level' => 2, 'options' => ['Oxygen', 'Carbon dioxide', 'Nitrogen', 'Hydrogen'], 'correct_option' => 1],
             ['text' => 'What is the past tense of go?', 'level' => 2, 'options' => ['Goed', 'Gone', 'Went', 'Going'], 'correct_option' => 2],
             ['text' => 'Which fraction is equivalent to 0.5?', 'level' => 2, 'options' => ['1/4', '1/2', '2/3', '3/4'], 'correct_option' => 1],
@@ -51,7 +51,7 @@ class QuestionSeeder extends Seeder
             ['text' => 'Which event occurred first?', 'level' => 3, 'options' => ['World War II', 'The French Revolution', 'The moon landing', 'The invention of the internet'], 'correct_option' => 1],
             ['text' => 'What is the best summary of a paragraph?', 'level' => 3, 'options' => ['Every detail copied exactly', 'The main idea in fewer words', 'Only the first sentence', 'A personal opinion'], 'correct_option' => 1],
 
-            ['text' => 'If f(x) = 2x - 3, what is f(4)?', 'level' => 4, 'options' => ['13', '29', '32', '35'], 'correct_option' => 1],
+            ['text' => 'If f(x) = 2x^2 - 3, what is f(4)?', 'level' => 4, 'options' => ['13', '29', '32', '35'], 'correct_option' => 1],
             ['text' => 'Which process converts glucose into usable cellular energy?', 'level' => 4, 'options' => ['Photosynthesis', 'Respiration', 'Transpiration', 'Pollination'], 'correct_option' => 1],
             ['text' => 'Which argument is logically valid?', 'level' => 4, 'options' => ['All mammals breathe air. A whale is a mammal. Therefore, a whale breathes air.', 'If it rains, streets get wet. Streets are wet, so it rained.', 'Some birds fly. A penguin is a bird. Therefore, penguins fly.', 'All squares are rectangles. A rectangle is a square.'], 'correct_option' => 0],
             ['text' => 'What is the slope of a line through (2, 3) and (6, 11)?', 'level' => 4, 'options' => ['1', '2', '3', '4'], 'correct_option' => 1],
@@ -64,8 +64,8 @@ class QuestionSeeder extends Seeder
 
             ['text' => 'Solve for x: log10(x) = 3.', 'level' => 5, 'options' => ['30', '100', '300', '1000'], 'correct_option' => 3],
             ['text' => 'Which statement best describes natural selection?', 'level' => 5, 'options' => ['Organisms choose useful traits.', 'Individuals with advantageous heritable traits tend to leave more offspring.', 'All organisms evolve at the same rate.', 'Evolution happens within one lifetime.'], 'correct_option' => 1],
-            ['text' => 'If an investment grows 8% annually, which expression gives its value after n years?', 'level' => 5, 'options' => ['P + 0.08n', 'P(1.08)^n', 'P(0.08)^n', 'P  1.08n'], 'correct_option' => 1],
-            ['text' => 'What is the derivative of x - 4x?', 'level' => 5, 'options' => ['3x - 4', 'x - 4', '3x', 'x4 - 2x'], 'correct_option' => 0],
+            ['text' => 'If an investment grows 8% annually, which expression gives its value after n years?', 'level' => 5, 'options' => ['P + 0.08n', 'P(1.08)^n', 'P(0.08)^n', 'P x 1.08 x n'], 'correct_option' => 1],
+            ['text' => 'What is the derivative of x^3 - 4x?', 'level' => 5, 'options' => ['3x^2 - 4', 'x^2 - 4', '3x', 'x^4 - 2x'], 'correct_option' => 0],
             ['text' => 'Which research design best establishes a causal effect?', 'level' => 5, 'options' => ['Cross-sectional survey', 'Randomized controlled experiment', 'Case report', 'Opinion poll'], 'correct_option' => 1],
             ['text' => 'A solution contains 0.01 moles of solute in 0.5 liters. What is its molarity?', 'level' => 5, 'options' => ['0.005 M', '0.02 M', '0.05 M', '0.2 M'], 'correct_option' => 1],
             ['text' => 'Which algorithm has average time complexity O(n log n)?', 'level' => 5, 'options' => ['Linear search', 'Binary search', 'Merge sort', 'Bubble sort'], 'correct_option' => 2],

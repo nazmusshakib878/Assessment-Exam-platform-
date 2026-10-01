@@ -24,17 +24,20 @@ class AttemptController extends Controller
             ->latest()
             ->get();
 
-        return response()->json(['attempts' => AttemptResultResource::collection($attempts)]);
+        $activeAttemptId = Attempt::query()->where('user_id', $request->user()->id)->where('status', 'in_progress')->value('id');
+
+        return response()->json(['attempts' => AttemptResultResource::collection($attempts), 'active_attempt_id' => $activeAttemptId]);
     }
 
     public function store(Request $request): JsonResponse
     {
-        $attempt = $this->examService->startAttempt($request->user());
+        $result = $this->examService->startOrResumeAttempt($request->user());
 
         return response()->json([
-            'message' => 'Attempt started successfully.',
-            'attempt' => new AttemptResource($attempt),
-        ], 201);
+            'message' => $result['resumed'] ? 'Attempt resumed successfully.' : 'Attempt started successfully.',
+            'attempt' => new AttemptResource($result['attempt']),
+            'resumed' => $result['resumed'],
+        ], $result['resumed'] ? 200 : 201);
     }
 
     public function show(Request $request, Attempt $attempt): JsonResponse

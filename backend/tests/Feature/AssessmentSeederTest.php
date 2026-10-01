@@ -26,8 +26,16 @@ class AssessmentSeederTest extends TestCase
 
         foreach (Question::all() as $question) {
             $this->assertCount(4, $question->options);
+            $this->assertCount(4, array_unique($question->options));
             $this->assertContains($question->correct_option, [0, 1, 2, 3]);
+            $this->assertDoesNotMatchRegularExpression('/  /', $question->text);
+
+            foreach ($question->options as $option) {
+                $this->assertDoesNotMatchRegularExpression('/  /', $option);
+            }
         }
+        $fOfFour = Question::where('text', 'If f(x) = 2x^2 - 3, what is f(4)?')->firstOrFail();
+        $this->assertSame('29', $fOfFour->options[$fOfFour->correct_option]);
     }
 
     public function test_the_assessment_seeders_are_idempotent(): void

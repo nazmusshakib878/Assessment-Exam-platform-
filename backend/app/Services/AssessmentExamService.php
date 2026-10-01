@@ -34,6 +34,20 @@ class AssessmentExamService
         });
     }
 
+    /** @return array{attempt: Attempt, resumed: bool} */
+    public function startOrResumeAttempt(User $user): array
+    {
+        $attempt = $user->attempts()
+            ->where('status', 'in_progress')
+            ->latest()
+            ->first();
+
+        if ($attempt !== null) {
+            return ['attempt' => $attempt->load('answers.question'), 'resumed' => true];
+        }
+
+        return ['attempt' => $this->startAttempt($user), 'resumed' => false];
+    }
     /** @param array<int, array{question_id: int, selected_option: int|null}> $answers */
     public function saveAnswers(Attempt $attempt, array $answers): Attempt
     {
@@ -51,7 +65,7 @@ class AssessmentExamService
 
             foreach ($answersByQuestion as $questionId => $answer) {
                 $attempt->answers->firstWhere('question_id', $questionId)?->update([
-                    'selected_option' => $answer['selected_option'],
+                    'selected_option' => $answer['selected_option'] === null ? null : (int) $answer['selected_option'],
                 ]);
             }
 
@@ -76,7 +90,8 @@ class AssessmentExamService
             $score = 0;
 
             foreach ($attempt->answers as $answer) {
-                $selectedOption = $answersByQuestion->get($answer->question_id)['selected_option'] ?? null;
+                $submittedAnswer = $answersByQuestion->get($answer->question_id);
+                $selectedOption = $submittedAnswer === null ? $answer->selected_option : ($submittedAnswer['selected_option'] === null ? null : (int) $submittedAnswer['selected_option']);
                 $isCorrect = $selectedOption !== null && $selectedOption === $answer->question->correct_option;
                 $points = $isCorrect ? $answer->question->level : 0;
 
